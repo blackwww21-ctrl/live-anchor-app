@@ -29,6 +29,21 @@ jobs:
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
+      with:
+        build-tools-version: '34.0.0'
+        platform-version: '34'
+        ndk-version: '25.2.9519653'
+        cmake-version: '3.22.1'
+
+    - name: Make gradlew executable
+      run: chmod +x ./android/gradlew
+
+    - name: Set up environment variables
+      run: |
+        echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+        echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+        echo "$ANDROID_HOME/emulator" >> $GITHUB_PATH
+        echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
     - name: Cache Gradle
       uses: actions/cache@v4
@@ -47,18 +62,24 @@ jobs:
     - name: Build APK
       run: |
         cd android
-        ./gradlew assembleDebug --no-daemon
+        ./gradlew assembleDebug --no-daemon --stacktrace
 
     - name: Upload APK
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
 
-    - name: List build output
+    - name: Debug build output
+      if: always()
       run: |
-        echo "Listing build output directory:"
-        ls -la android/app/build/outputs/apk/debug/ || echo "APK directory not found"
-        echo "Checking root build directory:"
-        ls -la android/app/build/ || echo "Root build directory not found"
+        echo "=== Debug Information ==="
+        echo "Current directory: $(pwd)"
+        echo "Android directory contents:"
+        ls -la android/ || echo "Android directory not found"
+        echo "Build directory contents:"
+        ls -la android/app/build/ || echo "Build directory not found"
+        echo "APK directory contents:"
+        ls -la android/app/build/outputs/apk/ || echo "APK directory not found"

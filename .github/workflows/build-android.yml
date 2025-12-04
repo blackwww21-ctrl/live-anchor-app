@@ -56,21 +56,9 @@ jobs:
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
 
-    - name: Release APK
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v1
-      with:
-        files: android/app/build/outputs/apk/debug/app-debug.apk
-        name: live-anchor-app-${{ github.sha }}
-        tag_name: build-${{ github.sha }}
-        body: |
-          自动构建的APK文件
-          
-          **声网配置**:
-          - 频道名: yangyang
-          - 构建时间: ${{ github.event.head_commit.timestamp }}
-          - 提交: ${{ github.sha }}
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: List build output
+      run: |
+        echo "Listing build output directory:"
+        ls -la android/app/build/outputs/apk/debug/ || echo "APK directory not found"
+        echo "Checking root build directory:"
+        ls -la android/app/build/ || echo "Root build directory not found"

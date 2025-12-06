@@ -51,13 +51,19 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     
-    // Use the working React Native version
-    implementation "com.facebook.react:react-native:0.72.7"
+    // Use React Native with available version
+    implementation("com.facebook.react:react-native:+") {
+        exclude group: 'com.facebook.fresco'
+    }
     
     // Support libraries
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.core:core-ktx:1.10.1")
     implementation "androidx.multidex:multidex:2.0.1"
+    
+    // Fresco for image loading
+    implementation("com.facebook.fresco:fresco:2.6.0")
+    implementation("com.facebook.fresco:animated-gif:2.6.0")
     
     // Hermes JS Engine
     if (project.hasProperty('hermesEnabled') && project.hermesEnabled) {

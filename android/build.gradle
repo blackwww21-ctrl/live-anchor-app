@@ -10,6 +10,7 @@ buildscript {
         google()
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
+        jcenter() // Add JCenter for older React Native versions
     }
     dependencies {
         classpath("com.android.tools.build:gradle:8.1.0")
@@ -22,5 +23,6 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
+        jcenter() // Add JCenter for older React Native versions
     }
 }

@@ -1,9 +1,7 @@
 apply plugin: "com.android.application"
-apply plugin: "org.jetbrains.kotlin.android"
 
 def enableSeparateBuildPerCPUArchitecture = false
 def enableProguardInReleaseBuilds = false
-def jscFlavor = 'org.webkit:android-jsc:+'
 
 android {
     ndkVersion rootProject.ext.ndkVersion
@@ -22,15 +20,6 @@ android {
         }
         
         multiDexEnabled true
-    }
-
-    splits {
-        abi {
-            reset()
-            enable enableSeparateBuildPerCPUArchitecture
-            universalApk false
-            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
-        }
     }
 
     signingConfigs {
@@ -57,24 +46,24 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-
-    kotlinOptions {
-        jvmTarget = '17'
-    }
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
+    
+    // React Native
     implementation("com.facebook.react:react-native:+")
+    
+    // Support libraries
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.core:core-ktx:1.10.1")
     implementation "androidx.multidex:multidex:2.0.1"
     
-    // Hermes if enabled
+    // Hermes JS Engine
     if (project.hasProperty('hermesEnabled') && project.hermesEnabled) {
         implementation("com.facebook.react:hermes-android:+")
     } else {
-        implementation jscFlavor
+        implementation "org.webkit:android-jsc:+"
     }
 }
 

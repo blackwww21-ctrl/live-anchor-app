@@ -35,6 +35,20 @@ jobs:
         ndk-version: '25.2.9519653'
         cmake-version: '3.22.1'
 
+    - name: Debug project structure
+      run: |
+        echo "=== Current directory: $(pwd) ==="
+        echo "=== Android directory contents ==="
+        ls -la android/ || echo "Android directory not found"
+        echo "=== Gradle wrapper exists ==="
+        ls -la android/gradlew || echo "gradlew not found"
+        echo "=== Gradle wrapper properties ==="
+        cat android/gradle/wrapper/gradle-wrapper.properties || echo "gradle-wrapper.properties not found"
+
+    - name: Install dependencies
+      run: |
+        npm install --legacy-peer-deps
+
     - name: Make gradlew executable
       run: chmod +x ./android/gradlew
 
@@ -55,14 +69,17 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Install dependencies
+    - name: Clean Gradle cache
       run: |
-        npm install --legacy-peer-deps
+        cd android
+        ./gradlew clean --no-daemon
 
     - name: Build APK
       run: |
         cd android
-        ./gradlew assembleDebug --no-daemon --stacktrace
+        echo "=== Starting Gradle build ==="
+        ./gradlew assembleDebug --no-daemon --stacktrace --info
+        echo "=== Gradle build completed ==="
 
     - name: Upload APK
       if: success()

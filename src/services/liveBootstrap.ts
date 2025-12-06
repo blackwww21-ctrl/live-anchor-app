@@ -14,8 +14,8 @@ export type AnchorInitResponse = {
 
 export async function initAnchorLiveEnv(): Promise<AnchorInitResponse> {
   // 使用固定的频道名和临时令牌
-  const fixedChannelName = 'yangyang';
-  const temporaryToken = '007eJxTYJi3VvN/2aztR8IDE95fnZqfOy/iRuaGmuXLNq4KrGQU29WqwJBomGJkaGJmamhiaWSSlGyYZJxkamZsZmZgYZhobmpsVNtsmNkQyMhQILWXhZEBAkF8DobKxLx0EGZgAAA3uSFY';
+  const fixedChannelName = 'yyyang';
+  const temporaryToken = '007eJxTYAjTDLtWubazpkZCqIv3X8GLrPd5V2Zd/7v5XfDv51yJrdEKDImGKUaGJmamhiaWRiZJyYZJxkmmZsZmZgYWhonmpsZGE3caZzYEMjIcP+vJysgAgSA+G0NlZWViXjoDAwD5wSGp=';
 
   const agoraData: AnchorInitResponse = {
     roomId: '1',

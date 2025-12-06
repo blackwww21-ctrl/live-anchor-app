@@ -51,7 +51,10 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     
-    // React Native from local node_modules
+    // React Native with specific version
+    implementation "com.facebook.react:react-native:0.81.5"
+    
+    // Native modules
     implementation project(':react-native-safe-area-context')
     implementation project(':react-native-screens')
     implementation project(':react-native-agora')
@@ -60,13 +63,6 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.core:core-ktx:1.10.1")
     implementation "androidx.multidex:multidex:2.0.1"
-    
-    // Add React Native implementation
-    if (findProject(":ReactAndroid")) {
-        implementation project(":ReactAndroid")
-    } else {
-        implementation "com.facebook.react:react-native:+"
-    }
     
     // Hermes JS Engine
     if (project.hasProperty('hermesEnabled') && project.hermesEnabled) {

@@ -1,114 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YY直播主播端</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
         }
         .container {
             text-align: center;
-            background: rgba(255,255,255,0.1);
-            padding: 40px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             max-width: 400px;
+            width: 100%;
+        }
+        .logo {
+            font-size: 48px;
+            margin-bottom: 20px;
         }
         h1 {
-            color: #4CAF50;
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.8;
             margin-bottom: 30px;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .feature-list {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        .feature-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
         }
         .status {
-            background: rgba(76,175,80,0.2);
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-            border: 2px solid #4CAF50;
-        }
-        .feature {
-            background: rgba(33,150,243,0.2);
+            margin-top: 30px;
             padding: 15px;
-            margin: 10px 0;
+            background: rgba(76, 175, 80, 0.2);
             border-radius: 10px;
-            border-left: 4px solid #2196F3;
+            border: 1px solid rgba(76, 175, 80, 0.3);
         }
-        .btn {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px 5px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(76,175,80,0.3);
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76,175,80,0.4);
+        .version {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 12px;
+            opacity: 0.6;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎥 YY直播主播端</h1>
+        <div class="logo">🎥</div>
+        <h1>YY直播主播端</h1>
+        <p class="subtitle">专业直播，精彩不断</p>
+        
+        <div class="feature-list">
+            <div class="feature-item">📱 移动端直播</div>
+            <div class="feature-item">🎤 高清音质</div>
+            <div class="feature-item">💬 实时互动</div>
+            <div class="feature-item">📊 数据分析</div>
+        </div>
         
         <div class="status">
-            <h3>📱 应用状态</h3>
-            <p>✅ APK构建成功</p>
-            <p>🚀 应用已启动</p>
-            <p>⚡ 准备就绪</p>
+            ✅ 应用已成功启动<br>
+            🚀 准备开始直播
         </div>
-
-        <div class="feature">
-            <h3>🌟 核心功能</h3>
-            <p>🎥 视频直播推流</p>
-            <p>🎙️ 实时弹幕互动</p>
-            <p>📊 观众数据统计</p>
-            <p>💝 礼物打赏系统</p>
-        </div>
-
-        <div class="feature">
-            <h3>🔧 技术特性</h3>
-            <p>⚛️ React Native 0.72.7</p>
-            <p>🎨 Material Design 3</p>
-            <p>📱 Android API 21+</p>
-            <p>🔥 Agora SDK 集成</p>
-        </div>
-
-        <button class="btn" onclick="startLive()">🎥 开始直播</button>
-        <button class="btn" onclick="openSettings()">⚙️ 设置</button>
     </div>
-
+    
+    <div class="version">v1.0.0</div>
+    
     <script>
-        function startLive() {
-            alert('🎥 直播功能开发中，敬请期待！');
+        console.log('YY直播主播端已加载完成');
+        
+        // 显示启动时间
+        window.onload = function() {
+            const now = new Date();
+            console.log('应用启动时间:', now.toLocaleString());
+        };
+        
+        // 简单的状态检查
+        function checkStatus() {
+            console.log('系统状态正常');
+            return true;
         }
         
-        function openSettings() {
-            alert('⚙️ 设置页面开发中，敬请期待！');
-        }
-
-        // 显示启动时间
-        document.addEventListener('DOMContentLoaded', function() {
-            const time = new Date().toLocaleString('zh-CN');
-            console.log('🚀 YY直播主播端启动时间:', time);
-        });
+        // 每分钟检查一次状态
+        setInterval(checkStatus, 60000);
     </script>
 </body>
 </html>

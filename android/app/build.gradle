@@ -31,6 +31,7 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            debuggable true
         }
         release {
             signingConfig signingConfigs.debug
@@ -43,19 +44,28 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    packagingOptions {
+        pickFirst '**/libc++_shared.so'
+        pickFirst '**/libjsc.so'
+    }
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     
-    // Basic Android libraries
-    implementation("androidx.appcompat:appcompat:1.5.4")
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("androidx.core:core:1.8.0")
+    // Basic Android libraries - using confirmed stable versions
+    implementation "androidx.appcompat:appcompat:1.4.2"
+    implementation "androidx.core:core:1.7.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+    implementation "com.google.android.material:material:1.5.0"
     implementation "androidx.multidex:multidex:2.0.1"
-    implementation("com.google.android.material:material:1.6.1")
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
     
-    // Network libraries for API calls
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
-    implementation("com.google.code.gson:gson:2.9.0")
+    // Network libraries
+    implementation "com.squareup.okhttp3:okhttp:4.9.3"
+    implementation "com.google.code.gson:gson:2.8.9"
+    
+    // WebView for React Native content
+    implementation "androidx.webkit:webkit:1.5.1"
 }

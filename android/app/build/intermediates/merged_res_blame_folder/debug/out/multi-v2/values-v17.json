@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.liveanchor.app-mergeDebugResources-24:/values-v17/values-v17.xml",
+            "outputFile": "com.liveanchor.app-mergeDebugResources-15:/values-v17/values-v17.xml",
             "map": [
                 {
                     "source": "D:\\GradleHome\\caches\\transforms-3\\4554097f8d236eefbfa9bb2bdc107870\\transformed\\appcompat-1.4.2\\res\\values-v17\\values-v17.xml",

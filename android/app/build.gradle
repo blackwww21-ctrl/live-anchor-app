@@ -55,9 +55,7 @@ dependencies {
     implementation "androidx.multidex:multidex:2.0.1"
     implementation("com.google.android.material:material:1.9.0")
     
-    // Network
+    // Network libraries for API calls
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("com.squareup.okio:okio:3.0.0")
+    implementation("com.google.code.gson:gson:2.10.1")
 }
-
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

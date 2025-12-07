@@ -1,0 +1,22 @@
+rootProject.name = 'liveanchor'  // 改回您的应用名称
+
+// 应用 React Native 配置
+apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle")
+applyNativeModulesSettingsGradle(settings)
+
+// 包含应用模块
+include ':app'
+
+// React Native 核心模块将通过远程仓库解析
+
+// 添加原生模块
+include ':react-native-safe-area-context'
+project(':react-native-safe-area-context').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-safe-area-context/android')
+
+include ':react-native-screens'
+project(':react-native-screens').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-screens/android')
+
+include ':react-native-agora'
+project(':react-native-agora').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-agora/android')
+
+// React Native 0.72.7 不需要手动包含Hermes模块

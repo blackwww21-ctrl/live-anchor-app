@@ -1,0 +1,111 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Install dependencies
+      run: |
+        cd live-anchor-expo
+        npm install --legacy-peer-deps
+        
+    - name: Setup Expo CLI
+      run: |
+        cd live-anchor-expo
+        npm install -g @expo/cli eas-cli
+        
+    - name: Login to Expo
+      run: |
+        cd live-anchor-expo
+        echo "${{ secrets.EXPO_TOKEN }}" | eas login --non-interactive
+        echo "${{ secrets.EXPO_TOKEN }}" | expo login -u ${{ secrets.EXPO_USERNAME }} -p ${{ secrets.EXPO_PASSWORD }} --non-interactive
+        
+    - name: Generate Android project
+      run: |
+        cd live-anchor-expo
+        npx expo prebuild --platform android --clean --non-interactive
+        
+    - name: Build APK
+      run: |
+        cd live-anchor-expo/android
+        ./gradlew assembleDebug --no-daemon
+        
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: live-anchor-app-debug
+        path: live-anchor-expo/android/app/build/outputs/apk/debug/app-debug.apk
+        retention-days: 30
+        
+    - name: Get APK info
+      run: |
+        cd live-anchor-expo/android/app/build/outputs/apk/debug
+        echo "APK Size: $(du -h app-debug.apk | cut -f1)"
+        echo "APK SHA256: $(sha256sum app-debug.apk | cut -d' ' -f1)"
+        
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Live Anchor App v${{ github.run_number }}
+        draft: false
+        prerelease: false
+        body: |
+          ## 📱 Android APK Build
+          
+          - 📦 **文件大小**: ${{ steps.upload.outputs.size }}
+          - 🔐 **SHA256**: ${{ steps.upload.outputs.sha256 }}
+          - 📅 **构建时间**: ${{ github.event.head_commit.timestamp }}
+          - 🌟 **版本**: v${{ github.run_number }}
+          
+          ### 下载说明
+          点击下方的 Assets 下载 `app-debug.apk` 文件。
+          
+          ### 安装说明
+          1. 下载 APK 文件到 Android 设备
+          2. 在设置中启用"未知来源"安装
+          3. 点击 APK 文件进行安装
+          
+          ---
+          🤖 由 GitHub Actions 自动构建
+      with:
+        files: live-anchor-expo/android/app/build/outputs/apk/debug/app-debug.apk

@@ -1,0 +1,51 @@
+name: Expo Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: live-anchor-expo/package-lock.json
+        
+    - name: Setup Expo CLI
+      uses: expo/expo-github-action@v8
+      with:
+        expo-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+        
+    - name: Install dependencies
+      run: |
+        cd live-anchor-expo
+        npm install --legacy-peer-deps
+        
+    - name: Build APK with EAS
+      run: |
+        cd live-anchor-expo
+        eas build --platform android --profile preview --non-interactive
+        
+    - name: Download build artifacts
+      run: |
+        cd live-anchor-expo
+        # EAS会自动下载构建的APK到当前目录
+        ls -la *.apk 2>/dev/null || echo "APK文件将在构建完成后提供下载链接"
+        
+    - name: Upload APK if available locally
+      if: hashFiles('live-anchor-expo/*.apk') != ''
+      uses: actions/upload-artifact@v4
+      with:
+        name: live-anchor-apk
+        path: live-anchor-expo/*.apk
+        retention-days: 30

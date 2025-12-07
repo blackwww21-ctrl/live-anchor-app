@@ -1,0 +1,139 @@
+name: 📱 Build Live App APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🚀 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: live-anchor-expo/package-lock.json
+        
+    - name: ☕ Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        
+    - name: 🤖 Setup Android SDK
+      uses: android-actions/setup-android@v3
+        
+    - name: 💾 Cache Dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.npm
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-live-app-${{ hashFiles('**/package-lock.json', '**/*.gradle*') }}
+        restore-keys: |
+          ${{ runner.os }}-live-app-
+          
+    - name: 📥 Install Project Dependencies
+      run: |
+        cd live-anchor-expo
+        echo "📦 安装项目依赖..."
+        npm install --legacy-peer-deps
+        
+    - name: 🔧 Setup Expo CLI
+      run: |
+        cd live-anchor-expo
+        echo "🔧 配置Expo CLI..."
+        npm install -g @expo/cli
+        
+    - name: 🏗️ Generate Android Project
+      run: |
+        cd live-anchor-expo
+        echo "🏗️ 生成Android项目..."
+        npx expo prebuild --platform android --clean --non-interactive
+        
+    - name: 🔨 Build APK
+      run: |
+        cd live-anchor-expo/android
+        echo "🔨 开始构建APK..."
+        echo "📱 项目路径: $(pwd)"
+        chmod +x gradlew
+        ./gradlew assembleDebug --no-daemon --console=plain
+        
+    - name: 📊 Get APK Information
+      run: |
+        cd live-anchor-expo/android/app/build/outputs/apk/debug
+        APK_SIZE=$(du -h app-debug.apk | cut -f1)
+        APK_SHA=$(sha256sum app-debug.apk | cut -d' ' -f1)
+        echo "📊 APK信息:"
+        echo "  📦 大小: $APK_SIZE"
+        echo "  🔐 SHA256: $APK_SHA"
+        echo "APK_SIZE=$APK_SIZE" >> $GITHUB_ENV
+        echo "APK_SHA=$APK_SHA" >> $GITHUB_ENV
+        echo "APK_PATH=live-anchor-expo/android/app/build/outputs/apk/debug/app-debug.apk" >> $GITHUB_ENV
+        
+    - name: 📤 Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: live-anchor-app-v${{ github.run_number }}
+        path: ${{ env.APK_PATH }}
+        retention-days: 30
+        
+    - name: 🎉 Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: app-v${{ github.run_number }}
+        name: 🤖 Live Anchor App v${{ github.run_number }}
+        body: |
+          ## 📱 直播应用APK构建完成！
+          
+          ### 📦 文件信息
+          - **📏 文件大小**: ${{ env.APK_SIZE }}
+          - **🔐 SHA256**: `${{ env.APK_SHA }}`
+          - **📅 构建时间**: ${{ github.event.head_commit.timestamp }}
+          - **🔄 提交**: ${{ github.sha }}
+          - **⭐ 版本**: v${{ github.run_number }}
+          
+          ### 📥 下载方式
+          1️⃣ **推荐**: 点击下方 `Assets` 中的 `app-debug.apk`
+          2️⃣ **备选**: 在 Actions 页面下载 Artifacts
+          
+          ### 📲 安装说明
+          1. 在Android设置中启用"未知来源"安装
+          2. 下载APK文件到设备
+          3. 点击APK文件进行安装
+          4. 如遇问题，可尝试卸载旧版本后重装
+          
+          ### 🎯 应用功能
+          - 🎥 **实时直播**: 推流和观看
+          - 💬 **互动聊天**: 实时弹幕和消息
+          - 🎁 **礼物系统**: 虚拟礼物打赏
+          - 👥 **观众管理**: 用户权限控制
+          - 🎨 **现代界面**: 美观的UI设计
+          
+          ---
+          🚀 **由 GitHub Actions 自动构建 ✨**
+          💬 **如有问题请在Issues中反馈**
+        files: ${{ env.APK_PATH }}
+        draft: false
+        prerelease: false
+        
+    - name: 🎊 Build Success Notification
+      run: |
+        echo "🎉🎊🎉🎊🎉"
+        echo "🎱 Live Anchor App APK 构建成功！"
+        echo "📦 文件大小: ${{ env.APK_SIZE }}"
+        echo "🔐 SHA256: ${{ env.APK_SHA }}"
+        echo "📥 下载链接已创建在 Release 中！"
+        echo "🎉🎊🎉🎊🎉"

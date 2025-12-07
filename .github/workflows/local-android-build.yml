@@ -1,0 +1,121 @@
+name: Local Android Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        api-level: 33
+        build-tools: 33.0.0
+        
+    - name: Cache node modules
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+          
+    - name: Cache Gradle
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Install dependencies
+      run: |
+        cd live-anchor-expo
+        npm install --legacy-peer-deps
+        
+    - name: Setup Expo CLI
+      run: |
+        cd live-anchor-expo
+        npm install -g @expo/cli
+        
+    - name: Generate Android project
+      run: |
+        cd live-anchor-expo
+        npx expo prebuild --platform android --clean --non-interactive
+        
+    - name: Grant execute permission for gradlew
+      run: |
+        cd live-anchor-expo/android
+        chmod +x gradlew
+        
+    - name: Build APK
+      run: |
+        cd live-anchor-expo/android
+        ./gradlew assembleDebug --no-daemon --stacktrace
+        
+    - name: Get APK info
+      run: |
+        cd live-anchor-expo/android/app/build/outputs/apk/debug
+        echo "APK_PATH=live-anchor-expo/android/app/build/outputs/apk/debug/app-debug.apk" >> $GITHUB_ENV
+        echo "APK_SIZE=$(du -h app-debug.apk | cut -f1)" >> $GITHUB_ENV
+        echo "APK_SHA256=$(sha256sum app-debug.apk | cut -d' ' -f1)" >> $GITHUB_ENV
+        
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: live-anchor-app-debug
+        path: ${{ env.APK_PATH }}
+        retention-days: 30
+        
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: android-v${{ github.run_number }}
+        name: 🤖 Live Anchor App Android v${{ github.run_number }}
+        body: |
+          ## 📱 Android APK 构建完成
+          
+          ### 📦 文件信息
+          - **文件大小**: ${{ env.APK_SIZE }}
+          - **SHA256**: ${{ env.APK_SHA256 }}
+          - **构建时间**: ${{ github.event.head_commit.timestamp }}
+          - **提交哈希**: ${{ github.sha }}
+          
+          ### 📥 下载方式
+          1. 点击下方的 Assets 下载 `app-debug.apk`
+          2. 或在 Actions 页面下载 Artifacts
+          
+          ### 🔧 安装说明
+          1. 在 Android 设备上启用"未知来源"安装
+          2. 下载并点击 APK 文件进行安装
+          3. 如需调试，可通过 `adb logcat` 查看日志
+          
+          ---
+          🚀 由 GitHub Actions 自动构建 ✨
+        files: ${{ env.APK_PATH }}
+        draft: false
+        prerelease: false
